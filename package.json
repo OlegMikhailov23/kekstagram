@@ -1,0 +1,23 @@
+{
+  "name": "kekstagram",
+  "version": "1.0.0",
+  "description": "Poject for train js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlegMikhailov23/kekstagram.git"
+  },
+  "author": "Oleg Mikhailov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OlegMikhailov23/kekstagram/issues"
+  },
+  "homepage": "https://github.com/OlegMikhailov23/kekstagram#readme",
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-htmlacademy": "^0.5.2"
+  }
+}
