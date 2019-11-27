@@ -18,19 +18,32 @@ var pictData = [pictUrls, likes, comments, description];
 
 var picturesBlock = document.querySelector('.pictures');
 
-var pictureTemplate = document.querySelector('#picture-template').content.querySelector('.picture');
+var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture__link');
 
+var bigPicture = document.querySelector('.big-picture');
+
+
+// Функция для создания элемента
+
+var makeElement = function (tagName, className, text) {
+  var element = document.createElement(tagName);
+  element.classList.add(className);
+  if (text) {
+    element.textContent = text;
+  }
+  return element;
+};
 
 // shuffle - для перемешивания массива
 var shuffle = function (array) {
   for (var i = array.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
-    // [array[i], array[j]] = [array[j], array[i]];
     var t = array[i];
     array[i] = array[j];
     array[j] = t;
   }
 };
+
 // getRandomNumber - для создания рандомных чисел в диапазоне min-max
 var getRandomNumber = function (min, max) {
   var rand = min + Math.random() * (max + 1 - min);
@@ -49,38 +62,39 @@ var getUrlsLikes = function () {
     var like = getRandomNumber(15, 500);
     likes.push(like);
   }
-  // return pictUrls;
-  // return likes;
 };
 
 // Создаем массив объектов
-var getPictData = function (arrKeys, arrData) {
+var getPictData = function (mainArray, arrKeys, arrData, arrComments, arrUrls) {
   for (var i = 0; i < pictureAmount; i++) {
     var someObj = {};
+    var someMassive = []; // Заготовка для комментариев
     for (var j = 0; j < arrKeys.length; j++) {
       someObj[arrKeys[j]] = arrData[j][
         [Math.floor(Math.random() * arrData[j].length)]
       ];
+      if (arrKeys[j] === 'comments') {
+        for (var k = 0; k < getRandomNumber(1, 2); k++) {
+          someMassive.push(arrComments[Math.floor(Math.random() * arrComments.length)]);
+        }
+      }
     }
     pictStore.push(someObj);
-  }
-  // Перетасовываем массив с URL's, чтобы фото не повторялись
-  for (var k = 0; k < pictureAmount; k++) {
-    pictStore[k].url = pictUrls[k];
+    mainArray[i].comments = someMassive;
+    mainArray[i].url = arrUrls[i];
   }
 };
-
 
 // Создаем DOM элемент
 var renderPicture = function (picture) {
   var pictureElement = pictureTemplate.cloneNode(true);
   pictureElement.querySelector('img').src = picture.url;
-  pictureElement.querySelector('.picture-likes').textContent = picture.likes;
-  pictureElement.querySelector('.picture-comments').textContent = picture.comments;
+  pictureElement.querySelector('.picture__stat--likes').textContent = picture.likes;
+  pictureElement.querySelector('.picture__stat--comments').textContent = picture.comments.length;
   return pictureElement;
 };
 
-// Отрисовываем элементы на странице
+// Отрисовываем DOM элементы на странице
 
 var pushInDock = function () {
   var fragment = document.createDocumentFragment();
@@ -90,11 +104,58 @@ var pushInDock = function () {
   picturesBlock.appendChild(fragment);
 };
 
+// Показываем большую картинку
+
+var show = function (element, mainArray) {
+  element.classList.remove('hidden');
+  element.querySelector('img').src = mainArray[0].url;
+  element.querySelector('.comments-count').textContent = mainArray[0].comments.length;
+  element.querySelector('.likes-count').textContent = mainArray[0].likes;
+};
+
+// Создаем элемент для одной строчки комментария
+
+var createComments = function (element) {
+  var commentItem = makeElement('li', 'social__comment');
+  var commentImg = makeElement('img', 'social__picture');
+  var commentDescription = document.querySelector('.social__caption');
+  commentItem.classList.add('social__comment--text');
+  commentImg.src = 'img/avatar-' + getRandomNumber(1, 6) + '.svg';
+  commentImg.alt = 'Аватар комментатора фотографии';
+  commentDescription.textContent = element.description;
+  commentItem.appendChild(commentImg);
+
+  return commentItem;
+};
+
+// Выводим список комментариев в документ, используя массив "comments"
+
+var renderCommentList = function (element) {
+  var commentBlock = document.querySelector('.social__comments');
+  for (var i = 0; i < element.comments.length; i++) {
+    var commentText = makeElement('p', 'social__text', element.comments[i]);
+    var listItem = createComments(element);
+    listItem.appendChild(commentText);
+    commentBlock.appendChild(listItem);
+  }
+};
+
+// Прячем необходимые блоки
+
+var hide = function (block1, block2) {
+  document.querySelector(block1).classList.add('visually-hidden');
+  document.querySelector(block2).classList.add('visually-hidden');
+};
+
+// Собираем все функции в одну (start) и запускаем ее
 
 var start = function () {
   getUrlsLikes();
-  getPictData(pictKeys, pictData);
+  getPictData(pictStore, pictKeys, pictData, comments, pictUrls);
   pushInDock();
+  show(bigPicture, pictStore);
+  renderCommentList(pictStore[0]);
+  hide('.social__comment-count', '.social__loadmore');
 };
 
 start();
