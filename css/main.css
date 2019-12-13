@@ -215,7 +215,7 @@ main {
 }
 
 .img-filters--inactive {
-  opacity: 0;
+  /*opacity: 0;*/
 }
 
 .img-filters__button {

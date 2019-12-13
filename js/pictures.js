@@ -1,5 +1,9 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
+
+var ENTER_KEYCODE = 13;
+
 var pictStore = [];
 
 var pictureAmount = 25;
@@ -153,9 +157,50 @@ var start = function () {
   getUrlsLikes();
   getPictData(pictStore, pictKeys, pictData, comments, pictUrls);
   pushInDock();
-  show(bigPicture, pictStore);
+  // show(bigPicture, pictStore);
   renderCommentList(pictStore[0]);
   hide('.social__comment-count', '.social__loadmore');
 };
-
 start();
+
+// Работа над сценарием
+
+var downloadForm = document.querySelector('.img-upload__form');
+
+var openDownloadForm = downloadForm.querySelector('.img-upload__input');
+
+var downloadWorkspace = downloadForm.querySelector('.img-upload__overlay');
+
+var closeDownloadForm = downloadForm.querySelector('.img-upload__cancel');
+
+var onFormEscpress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeDownLoadWorkspace();
+    openDownloadForm.value = '';
+  }
+};
+
+var closeDownLoadWorkspace = function () {
+  downloadWorkspace.classList.add('hidden');
+  document.removeEventListener('keydown', onFormEscpress);
+};
+
+var onDownloadbtnChange = function () {
+  downloadWorkspace.classList.remove('hidden');
+  document.addEventListener('keydown', onFormEscpress);
+};
+
+openDownloadForm.addEventListener('change', onDownloadbtnChange);
+
+closeDownloadForm.addEventListener('click', function () {
+  closeDownLoadWorkspace();
+  openDownloadForm.value = '';
+});
+
+closeDownloadForm.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closeDownLoadWorkspace();
+    openDownloadForm.value = '';
+  }
+});
+
