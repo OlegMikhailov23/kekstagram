@@ -4,6 +4,10 @@ var ESC_KEYCODE = 27;
 
 var ENTER_KEYCODE = 13;
 
+var PLUS_KEYCODE = 187;
+
+var MINUS_KEYCODE = 189;
+
 var pictStore = [];
 
 var pictureAmount = 25;
@@ -167,40 +171,207 @@ start();
 
 var downloadForm = document.querySelector('.img-upload__form');
 
-var openDownloadForm = downloadForm.querySelector('.img-upload__input');
+var openForm = downloadForm.querySelector('.img-upload__input');
 
 var downloadWorkspace = downloadForm.querySelector('.img-upload__overlay');
 
 var closeDownloadForm = downloadForm.querySelector('.img-upload__cancel');
 
-var onFormEscpress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    closeDownLoadWorkspace();
-    openDownloadForm.value = '';
-  }
+var previewPicture = downloadForm.querySelector('.img-upload__preview');
+
+// Перемнные для управления масштабом изображения формы
+
+var resizeMinus = downloadForm.querySelector('.resize__control--minus');
+
+var resizePlus = downloadForm.querySelector('.resize__control--plus');
+
+var resizeVal = downloadForm.querySelector('.resize__control--value');
+
+// Перемнные для управления эффектами
+
+var effectBlock = downloadForm.querySelector('.effects__list');
+
+var scalePin = downloadForm.querySelector('.img-upload__scale');
+
+var scaleLine = downloadForm.querySelector('.scale__line');
+
+var getCurrentEffectVal = function (evt) {
+  var target = evt.target;
+  var value = target.value;
+  return value;
 };
 
-var closeDownLoadWorkspace = function () {
-  downloadWorkspace.classList.add('hidden');
-  document.removeEventListener('keydown', onFormEscpress);
+
+var onFormEscpress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeForm();
+    openForm.value = '';
+  }
 };
 
 var onDownloadbtnChange = function () {
   downloadWorkspace.classList.remove('hidden');
   document.addEventListener('keydown', onFormEscpress);
+  document.addEventListener('keydown', onPreviewPicturePluspress);
+  document.addEventListener('keydown', onPreviewPictureMinuspress);
 };
 
-openDownloadForm.addEventListener('change', onDownloadbtnChange);
+var closeForm = function () {
+  downloadWorkspace.classList.add('hidden');
+  document.removeEventListener('keydown', onFormEscpress);
+  document.removeEventListener('keydown', onPreviewPicturePluspress);
+  document.removeEventListener('keydown', onPreviewPictureMinuspress);
+  previewPicture.style.transform = 'scale(1)';
+};
+
+openForm.addEventListener('change', onDownloadbtnChange);
 
 closeDownloadForm.addEventListener('click', function () {
-  closeDownLoadWorkspace();
-  openDownloadForm.value = '';
+  closeForm();
+  openForm.value = '';
 });
 
 closeDownloadForm.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
-    closeDownLoadWorkspace();
-    openDownloadForm.value = '';
+    closeForm();
+    openForm.value = '';
   }
 });
 
+// Работа с изображением
+//
+// 1) Управление масштабом
+
+var changeScale = function () {
+  previewPicture.style.transform = 'scale(' + parseInt(resizeVal.value, 10) / 100 + ')';
+  previewPicture.style.transition = '0.3s';
+};
+
+var increaseScale = function () {
+  resizeVal.value = parseInt(resizeVal.value, 10) + parseInt(resizeVal.step, 10) + '%';
+  if (parseInt(resizeVal.value, 10) > parseInt(resizeVal.max, 10)) {
+    resizeVal.value = parseInt(resizeVal.max, 10) + '%';
+  }
+  changeScale();
+};
+
+var reduceScale = function () {
+  resizeVal.value = parseInt(resizeVal.value, 10) - parseInt(resizeVal.step, 10) + '%';
+  if (parseInt(resizeVal.value, 10) < parseInt(resizeVal.min, 10)) {
+    resizeVal.value = parseInt(resizeVal.min, 10) + '%';
+  }
+  changeScale();
+};
+
+var onPreviewPicturePluspress = function (evt) {
+  if (evt.keyCode === PLUS_KEYCODE) {
+    increaseScale();
+  }
+};
+
+var onPreviewPictureMinuspress = function (evt) {
+  if (evt.keyCode === MINUS_KEYCODE) {
+    reduceScale();
+  }
+};
+
+resizePlus.addEventListener('click', function () {
+  increaseScale();
+});
+
+
+resizeMinus.addEventListener('click', function () {
+  reduceScale();
+});
+
+// 2) Управление фильтрами
+
+var pinPosition = {
+  minPinPosition: 0,
+  maxPinPosition: 450
+};
+
+var filterMap = {
+  none: {
+    class: 'effects__preview--none'
+  },
+  chrome: {
+    class: 'effects__preview--chrome',
+    css: 'grayscale',
+    max: 1,
+    min: 0
+  },
+  sepia: {
+    class: 'effects__preview--sepia',
+    css: 'sepia',
+    max: 1,
+    min: 0
+  },
+  marvin: {
+    class: 'effects__preview--marvin',
+    css: 'invert',
+    max: 100,
+    min: 0,
+    prefix: '%'
+  },
+  phobos: {
+    class: 'effects__preview--phobos',
+    css: 'blur',
+    max: 3,
+    min: 0,
+    prefix: 'px'
+  },
+  heat: {
+    class: 'effects__preview--heat',
+    css: 'brightness',
+    max: 3,
+    min: 1
+  }
+};
+
+var getPinPosition = function (evt) {
+  var upCoordinate = evt.clientX - scaleLine.getBoundingClientRect().x;
+  return upCoordinate;
+};
+
+var getStyleValue = function (min, max, shift) {
+  var value = ((max - min) * shift + min).toFixed(2);
+  return value;
+};
+
+var changeStyle = function (currentEffect, value, prefix) {
+  var changedStyle = currentEffect + '(' + value + prefix + ')';
+  return changedStyle;
+};
+
+var switchEffect = function (evt) {
+  var currentEffect = evt.target;
+  var currentEffectVal = getCurrentEffectVal(evt);
+  currentEffectVal !== 'none' ? scalePin.classList.remove('hidden') : scalePin.classList.add('hidden');
+  if (currentEffect.name !== 'effect') {
+    return;
+  } else {
+    previewPicture.classList = 'img-upload__preview';
+    previewPicture.classList.add(filterMap[currentEffectVal].class);
+    previewPicture.removeAttribute('style');
+  }
+};
+
+var onScaleMouseup = function (evt) {
+  var currentFilterVal = downloadForm.querySelector('input[type="radio"]:checked').value;
+  var prefix = filterMap[currentFilterVal].prefix || '';
+  var currentFilterStyle = filterMap[currentFilterVal].css;
+  var upCoordinate = getPinPosition(evt);
+  var shiftCssValue = parseFloat((upCoordinate / pinPosition.maxPinPosition)).toFixed(2);
+  var value = getStyleValue(filterMap[currentFilterVal].min, filterMap[currentFilterVal].max, shiftCssValue);
+  if (value > filterMap[currentFilterVal].max) {
+    value = filterMap[currentFilterVal].max;
+  }
+  previewPicture.style.filter = changeStyle(currentFilterStyle, value, prefix);
+};
+
+effectBlock.addEventListener('click', function (evt) {
+  switchEffect(evt);
+});
+
+scalePin.addEventListener('mouseup', onScaleMouseup);
