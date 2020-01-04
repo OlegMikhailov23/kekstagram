@@ -132,7 +132,6 @@ var createComments = function (element) {
   commentImg.alt = 'Аватар комментатора фотографии';
   commentDescription.textContent = element.description;
   commentItem.appendChild(commentImg);
-
   return commentItem;
 };
 
@@ -187,7 +186,10 @@ var resizePlus = downloadForm.querySelector('.resize__control--plus');
 
 var resizeVal = downloadForm.querySelector('.resize__control--value');
 
+var defaultScale = 100 + '%';
+
 // Перемнные для управления эффектами
+var origEffect = downloadForm.querySelector('#effect-none');
 
 var effectBlock = downloadForm.querySelector('.effects__list');
 
@@ -195,12 +197,7 @@ var scalePin = downloadForm.querySelector('.img-upload__scale');
 
 var scaleLine = downloadForm.querySelector('.scale__line');
 
-var getCurrentEffectVal = function (evt) {
-  var target = evt.target;
-  var value = target.value;
-  return value;
-};
-
+var effectValue = 'none'; // необходима для передачи переменной между функциями
 
 var onFormEscpress = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
@@ -218,10 +215,15 @@ var onDownloadbtnChange = function () {
 
 var closeForm = function () {
   downloadWorkspace.classList.add('hidden');
+  // scalePin.classList.add('hidden');
   document.removeEventListener('keydown', onFormEscpress);
   document.removeEventListener('keydown', onPreviewPicturePluspress);
   document.removeEventListener('keydown', onPreviewPictureMinuspress);
-  previewPicture.style.transform = 'scale(1)';
+  keepPreviewToDefault();
+  // previewPicture.style.transform = 'scale(1)';
+  // previewPicture.classList = 'img-upload__preview';
+  // previewPicture.removeAttribute('style');
+  // origEffect.checked = true;
 };
 
 openForm.addEventListener('change', onDownloadbtnChange);
@@ -328,49 +330,69 @@ var filterMap = {
     min: 1
   }
 };
-
+// Запись имени css еффекта из атрибута value
+var getTargetValue = function (evt) {
+  var value = evt.target.value;
+  effectValue = value;
+  return effectValue;
+};
+// Определение позиции на шкале бара
 var getPinPosition = function (evt) {
   var upCoordinate = evt.clientX - scaleLine.getBoundingClientRect().x;
   return upCoordinate;
 };
-
+// Определение позиции на шкале бара
 var getStyleValue = function (min, max, shift) {
   var value = ((max - min) * shift + min).toFixed(2);
   return value;
 };
-
+// Преобразование позиции в значение текущего свойства css
 var changeStyle = function (currentEffect, value, prefix) {
   var changedStyle = currentEffect + '(' + value + prefix + ')';
   return changedStyle;
 };
+// Сбрасываем масштаб картинки, значение текущего свойства css у выбранного эффекта на исходные значения
+var keepEffectToDefault = function (currentEffectVal) {
+  previewPicture.classList = 'img-upload__preview';
+  previewPicture.classList.add(filterMap[currentEffectVal].class);
+  previewPicture.style.transform = 'scale(1)';
+  resizeVal.value = defaultScale;
+  previewPicture.removeAttribute('style');
+};
 
+var keepPreviewToDefault = function () {
+  scalePin.classList.add('hidden');
+  previewPicture.style.transform = 'scale(1)';
+  previewPicture.classList = 'img-upload__preview';
+  previewPicture.removeAttribute('style');
+  origEffect.checked = true;
+}
+// Переключаемся между эффектами
 var switchEffect = function (evt) {
   var currentEffect = evt.target;
-  var currentEffectVal = getCurrentEffectVal(evt);
+  var currentEffectVal = getTargetValue(evt);
   currentEffectVal !== 'none' ? scalePin.classList.remove('hidden') : scalePin.classList.add('hidden');
   if (currentEffect.name !== 'effect') {
     return;
   } else {
-    previewPicture.classList = 'img-upload__preview';
-    previewPicture.classList.add(filterMap[currentEffectVal].class);
-    previewPicture.removeAttribute('style');
+    keepEffectToDefault(currentEffectVal);
   }
 };
-
+// Управляем ефффектами при помощи бара (пока при mouseup)
 var onScaleMouseup = function (evt) {
-  var currentFilterVal = downloadForm.querySelector('input[type="radio"]:checked').value;
-  var prefix = filterMap[currentFilterVal].prefix || '';
-  var currentFilterStyle = filterMap[currentFilterVal].css;
+  var prefix = filterMap[effectValue].prefix || '';
+  var currentFilterStyle = filterMap[effectValue].css;
   var upCoordinate = getPinPosition(evt);
   var shiftCssValue = parseFloat((upCoordinate / pinPosition.maxPinPosition)).toFixed(2);
-  var value = getStyleValue(filterMap[currentFilterVal].min, filterMap[currentFilterVal].max, shiftCssValue);
-  if (value > filterMap[currentFilterVal].max) {
-    value = filterMap[currentFilterVal].max;
+  var value = getStyleValue(filterMap[effectValue].min, filterMap[effectValue].max, shiftCssValue);
+  if (value > filterMap[effectValue].max) {
+    value = filterMap[effectValue].max;
   }
   previewPicture.style.filter = changeStyle(currentFilterStyle, value, prefix);
 };
 
 effectBlock.addEventListener('click', function (evt) {
+  getTargetValue(evt); //запись нового значения фильтра
   switchEffect(evt);
 });
 
