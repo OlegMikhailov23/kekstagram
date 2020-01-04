@@ -215,16 +215,19 @@ var onDownloadbtnChange = function () {
 
 var closeForm = function () {
   downloadWorkspace.classList.add('hidden');
-  // scalePin.classList.add('hidden');
   document.removeEventListener('keydown', onFormEscpress);
   document.removeEventListener('keydown', onPreviewPicturePluspress);
   document.removeEventListener('keydown', onPreviewPictureMinuspress);
   keepPreviewToDefault();
-  // previewPicture.style.transform = 'scale(1)';
-  // previewPicture.classList = 'img-upload__preview';
-  // previewPicture.removeAttribute('style');
-  // origEffect.checked = true;
 };
+
+var keepPreviewToDefault = function () {
+  scalePin.classList.add('hidden');
+  previewPicture.style.transform = 'scale(1)';
+  previewPicture.classList = 'img-upload__preview';
+  previewPicture.removeAttribute('style');
+  origEffect.checked = true;
+}
 
 openForm.addEventListener('change', onDownloadbtnChange);
 
@@ -330,12 +333,6 @@ var filterMap = {
     min: 1
   }
 };
-// Запись имени css еффекта из атрибута value
-var getTargetValue = function (evt) {
-  var value = evt.target.value;
-  effectValue = value;
-  return effectValue;
-};
 // Определение позиции на шкале бара
 var getPinPosition = function (evt) {
   var upCoordinate = evt.clientX - scaleLine.getBoundingClientRect().x;
@@ -359,18 +356,11 @@ var keepEffectToDefault = function (currentEffectVal) {
   resizeVal.value = defaultScale;
   previewPicture.removeAttribute('style');
 };
-
-var keepPreviewToDefault = function () {
-  scalePin.classList.add('hidden');
-  previewPicture.style.transform = 'scale(1)';
-  previewPicture.classList = 'img-upload__preview';
-  previewPicture.removeAttribute('style');
-  origEffect.checked = true;
-}
 // Переключаемся между эффектами
 var switchEffect = function (evt) {
   var currentEffect = evt.target;
-  var currentEffectVal = getTargetValue(evt);
+  var currentEffectVal = currentEffect.value;
+  effectValue = currentEffectVal; // перезаписываем переменную effectValue
   currentEffectVal !== 'none' ? scalePin.classList.remove('hidden') : scalePin.classList.add('hidden');
   if (currentEffect.name !== 'effect') {
     return;
@@ -392,7 +382,6 @@ var onScaleMouseup = function (evt) {
 };
 
 effectBlock.addEventListener('click', function (evt) {
-  getTargetValue(evt); //запись нового значения фильтра
   switchEffect(evt);
 });
 
