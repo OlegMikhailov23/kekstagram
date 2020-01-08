@@ -197,6 +197,10 @@ var scalePin = downloadForm.querySelector('.img-upload__scale');
 
 var scaleLine = downloadForm.querySelector('.scale__line');
 
+var scaleValue = downloadForm.querySelector('.scale__value');
+
+var scaleValueDefault = 100;
+
 var effectValue = 'none'; // необходима для передачи переменной между функциями
 
 var onFormEscpress = function (evt) {
@@ -226,8 +230,9 @@ var keepPreviewToDefault = function () {
   previewPicture.style.transform = 'scale(1)';
   previewPicture.classList = 'img-upload__preview';
   previewPicture.removeAttribute('style');
+  resizeVal.value = defaultScale;
   origEffect.checked = true;
-}
+};
 
 openForm.addEventListener('change', onDownloadbtnChange);
 
@@ -338,17 +343,17 @@ var getPinPosition = function (evt) {
   var upCoordinate = evt.clientX - scaleLine.getBoundingClientRect().x;
   return upCoordinate;
 };
-// Определение позиции на шкале бара
+// Определение значения css стиля для фильтра
 var getStyleValue = function (min, max, shift) {
   var value = ((max - min) * shift + min).toFixed(2);
   return value;
 };
-// Преобразование позиции в значение текущего свойства css
-var changeStyle = function (currentEffect, value, prefix) {
+// Генерация значения для css свойства filter
+var generateFilterValue = function (currentEffect, value, prefix) {
   var changedStyle = currentEffect + '(' + value + prefix + ')';
   return changedStyle;
 };
-// Сбрасываем масштаб картинки, значение текущего свойства css у выбранного эффекта на исходные значения
+// Сбрасываем масштаб картинки, значение текущего свойства css у выбранного эффекта при переключении между фильтрами
 var keepEffectToDefault = function (currentEffectVal) {
   previewPicture.classList = 'img-upload__preview';
   previewPicture.classList.add(filterMap[currentEffectVal].class);
@@ -374,11 +379,15 @@ var onScaleMouseup = function (evt) {
   var currentFilterStyle = filterMap[effectValue].css;
   var upCoordinate = getPinPosition(evt);
   var shiftCssValue = parseFloat((upCoordinate / pinPosition.maxPinPosition)).toFixed(2);
+  scaleValue.value = shiftCssValue * scaleValueDefault;
   var value = getStyleValue(filterMap[effectValue].min, filterMap[effectValue].max, shiftCssValue);
   if (value > filterMap[effectValue].max) {
     value = filterMap[effectValue].max;
   }
-  previewPicture.style.filter = changeStyle(currentFilterStyle, value, prefix);
+  if (scaleValue.value > scaleValueDefault) {
+    scaleValue.value = scaleValueDefault;
+  }
+  previewPicture.style.filter = generateFilterValue(currentFilterStyle, value, prefix);
 };
 
 effectBlock.addEventListener('click', function (evt) {
@@ -386,3 +395,91 @@ effectBlock.addEventListener('click', function (evt) {
 });
 
 scalePin.addEventListener('mouseup', onScaleMouseup);
+
+// Проверка Хэш-тегов и комментария
+var tagData = {
+  maxTagAmount: 5,
+  minTagCharAmount: 2,
+  maxTagCharAmount: 20,
+  tagSign: '#'
+};
+
+var errorMessageData = {
+  tagBegin: 'Хэштег должен начинаться с ' + tagData.tagSign,
+  minTagChar: 'Хэштег должен состоять минимум из ' + tagData.minTagCharAmount + ' символов и не может состоять только из #',
+  maxTagChar: 'Один хэштег не может быть больше ' + tagData.maxTagCharAmount + ' символов',
+  tagSpaced: 'Хэштеги должны отделятся между собой пробелами',
+  tagRepeat: 'Хэштеги не должны повторяться',
+  maxTags: 'Укажите не больше ' + tagData.maxTagAmount + ' тегов'
+};
+
+var hashTag = downloadForm.querySelector('.text__hashtags');
+
+var formComment = downloadForm.querySelector('.text__description');
+
+var splitString = function (hashTagValue) {
+  var space = ' ';
+  var hashTags = hashTagValue.split(space);
+  return hashTags;
+};
+
+var checkHashTags = function (minTagCharAmount, maxTagCharAmount, maxTagAmount, sign, el) {
+  if (el.value !== '') {
+    var hashTagValue = el.value;
+    var hashTagsArray = splitString(hashTagValue);
+    var hashTagRepeatCount = 0;
+    for (var i = 0; i < hashTagsArray.length; i++) {
+      hashTagsArray[i] = hashTagsArray[i].toLowerCase(); // Приводим все хэштэги к нижнему регистру
+    }
+    for (var j = 0; j < hashTagsArray.length; j++) {
+      var count = 0;
+      for (var k = j + 1; k < hashTagsArray.length; k++) {
+        if (hashTagsArray[j] === hashTagsArray[k]) {
+          hashTagRepeatCount++;
+        }
+      }
+      for (var l = 0; l < hashTagsArray[j].length; l++) {
+        if (hashTagsArray[j].charAt(l) === sign) {
+          count++;
+        }
+      }
+      if (hashTagsArray[j].charAt(0) !== sign) {
+        hashTag.setCustomValidity(errorMessageData.tagBegin);
+      } else if (hashTagsArray[j].length < minTagCharAmount) {
+        hashTag.setCustomValidity(errorMessageData.minTagChar);
+      } else if (count > 1) {
+        hashTag.setCustomValidity(errorMessageData.tagSpaced);
+      } else if (hashTagRepeatCount > 0) {
+        hashTag.setCustomValidity(errorMessageData.tagRepeat);
+      } else if (j + 1 > maxTagAmount) {
+        hashTag.setCustomValidity(errorMessageData.maxTags);
+      } else if (hashTagsArray[j].length > maxTagCharAmount) {
+        hashTag.setCustomValidity(errorMessageData.maxTagChar);
+      } else {
+        hashTag.setCustomValidity('');
+      }
+    }
+  } else {
+    hashTag.setCustomValidity('');
+  }
+};
+
+hashTag.addEventListener('input', function () {
+  checkHashTags(tagData.minTagCharAmount, tagData.maxTagCharAmount, tagData.maxTagAmount, tagData.tagSign, hashTag);
+});
+
+hashTag.addEventListener('focus', function () {
+  document.removeEventListener('keydown', onFormEscpress);
+});
+
+hashTag.addEventListener('blur', function () {
+  document.addEventListener('keydown', onFormEscpress);
+});
+
+formComment.addEventListener('focus', function () {
+  document.removeEventListener('keydown', onFormEscpress);
+});
+
+formComment.addEventListener('blur', function () {
+  document.addEventListener('keydown', onFormEscpress);
+});
