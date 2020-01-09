@@ -168,38 +168,38 @@ start();
 
 // Работа над сценарием
 
-var downloadForm = document.querySelector('.img-upload__form');
+var uploadForm = document.querySelector('.img-upload__form');
 
-var openForm = downloadForm.querySelector('.img-upload__input');
+var openForm = uploadForm.querySelector('.img-upload__input');
 
-var downloadWorkspace = downloadForm.querySelector('.img-upload__overlay');
+var uploadWorkspace = uploadForm.querySelector('.img-upload__overlay');
 
-var closeDownloadForm = downloadForm.querySelector('.img-upload__cancel');
+var closeUploadForm = uploadForm.querySelector('.img-upload__cancel');
 
-var previewPicture = downloadForm.querySelector('.img-upload__preview');
+var previewPicture = uploadForm.querySelector('.img-upload__preview');
 
 // Перемнные для управления масштабом изображения формы
 
-var resizeMinus = downloadForm.querySelector('.resize__control--minus');
+var resizeMinus = uploadForm.querySelector('.resize__control--minus');
 
-var resizePlus = downloadForm.querySelector('.resize__control--plus');
+var resizePlus = uploadForm.querySelector('.resize__control--plus');
 
-var resizeVal = downloadForm.querySelector('.resize__control--value');
+var resizeVal = uploadForm.querySelector('.resize__control--value');
 
 var defaultScale = 100 + '%';
 
 // Перемнные для управления эффектами
-var origEffect = downloadForm.querySelector('#effect-none');
+var origEffect = uploadForm.querySelector('#effect-none');
 
-var effectBlock = downloadForm.querySelector('.effects__list');
+var effectBlock = uploadForm.querySelector('.effects__list');
 
-var scalePin = downloadForm.querySelector('.img-upload__scale');
+var scalePin = uploadForm.querySelector('.img-upload__scale');
 
-var scaleLine = downloadForm.querySelector('.scale__line');
+var scaleLine = uploadForm.querySelector('.scale__line');
 
-var scaleValue = downloadForm.querySelector('.scale__value');
+var scaleValue = uploadForm.querySelector('.scale__value');
 
-var scaleValueDefault = 100;
+var scalePinValueDefault = 100;
 
 var effectValue = 'none'; // необходима для передачи переменной между функциями
 
@@ -210,15 +210,15 @@ var onFormEscpress = function (evt) {
   }
 };
 
-var onDownloadbtnChange = function () {
-  downloadWorkspace.classList.remove('hidden');
+var onUploadbtnChange = function () {
+  uploadWorkspace.classList.remove('hidden');
   document.addEventListener('keydown', onFormEscpress);
   document.addEventListener('keydown', onPreviewPicturePluspress);
   document.addEventListener('keydown', onPreviewPictureMinuspress);
 };
 
 var closeForm = function () {
-  downloadWorkspace.classList.add('hidden');
+  uploadWorkspace.classList.add('hidden');
   document.removeEventListener('keydown', onFormEscpress);
   document.removeEventListener('keydown', onPreviewPicturePluspress);
   document.removeEventListener('keydown', onPreviewPictureMinuspress);
@@ -234,14 +234,14 @@ var keepPreviewToDefault = function () {
   origEffect.checked = true;
 };
 
-openForm.addEventListener('change', onDownloadbtnChange);
+openForm.addEventListener('change', onUploadbtnChange);
 
-closeDownloadForm.addEventListener('click', function () {
+closeUploadForm.addEventListener('click', function () {
   closeForm();
   openForm.value = '';
 });
 
-closeDownloadForm.addEventListener('keydown', function (evt) {
+closeUploadForm.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     closeForm();
     openForm.value = '';
@@ -379,13 +379,13 @@ var onScaleMouseup = function (evt) {
   var currentFilterStyle = filterMap[effectValue].css;
   var upCoordinate = getPinPosition(evt);
   var shiftCssValue = parseFloat((upCoordinate / pinPosition.maxPinPosition)).toFixed(2);
-  scaleValue.value = shiftCssValue * scaleValueDefault;
+  scaleValue.value = shiftCssValue * scalePinValueDefault;
   var value = getStyleValue(filterMap[effectValue].min, filterMap[effectValue].max, shiftCssValue);
   if (value > filterMap[effectValue].max) {
     value = filterMap[effectValue].max;
   }
-  if (scaleValue.value > scaleValueDefault) {
-    scaleValue.value = scaleValueDefault;
+  if (scaleValue.value > scalePinValueDefault) {
+    scaleValue.value = scalePinValueDefault;
   }
   previewPicture.style.filter = generateFilterValue(currentFilterStyle, value, prefix);
 };
@@ -413,24 +413,27 @@ var errorMessageData = {
   maxTags: 'Укажите не больше ' + tagData.maxTagAmount + ' тегов'
 };
 
-var hashTag = downloadForm.querySelector('.text__hashtags');
+var hashTag = uploadForm.querySelector('.text__hashtags');
 
-var formComment = downloadForm.querySelector('.text__description');
+var formComment = uploadForm.querySelector('.text__description');
 
-var splitString = function (hashTagValue) {
+var submitBtn = uploadForm.querySelector('#upload-submit');
+
+var splitString = function (string) {
   var space = ' ';
-  var hashTags = hashTagValue.split(space);
-  return hashTags;
+  var array = string.split(space);
+  return array;
 };
 
-var checkHashTags = function (minTagCharAmount, maxTagCharAmount, maxTagAmount, sign, el) {
-  if (el.value !== '') {
-    var hashTagValue = el.value;
+var clearCustomValidity = function (el) {
+    el.setCustomValidity('');
+};
+
+var onSubmitClick = function () {
+  if (hashTag.value !== '') {
+    var hashTagValue = hashTag.value.toLowerCase();
     var hashTagsArray = splitString(hashTagValue);
     var hashTagRepeatCount = 0;
-    for (var i = 0; i < hashTagsArray.length; i++) {
-      hashTagsArray[i] = hashTagsArray[i].toLowerCase(); // Приводим все хэштэги к нижнему регистру
-    }
     for (var j = 0; j < hashTagsArray.length; j++) {
       var count = 0;
       for (var k = j + 1; k < hashTagsArray.length; k++) {
@@ -439,33 +442,35 @@ var checkHashTags = function (minTagCharAmount, maxTagCharAmount, maxTagAmount, 
         }
       }
       for (var l = 0; l < hashTagsArray[j].length; l++) {
-        if (hashTagsArray[j].charAt(l) === sign) {
+        if (hashTagsArray[j].charAt(l) === tagData.tagSign) {
           count++;
         }
       }
-      if (hashTagsArray[j].charAt(0) !== sign) {
+      if (hashTagsArray[j].charAt(0) !== tagData.tagSign) {
         hashTag.setCustomValidity(errorMessageData.tagBegin);
-      } else if (hashTagsArray[j].length < minTagCharAmount) {
+      } else if (hashTagsArray[j].length < tagData.minTagCharAmount) {
         hashTag.setCustomValidity(errorMessageData.minTagChar);
       } else if (count > 1) {
         hashTag.setCustomValidity(errorMessageData.tagSpaced);
       } else if (hashTagRepeatCount > 0) {
         hashTag.setCustomValidity(errorMessageData.tagRepeat);
-      } else if (j + 1 > maxTagAmount) {
+      } else if (j + 1 > tagData.maxTagAmount) {
         hashTag.setCustomValidity(errorMessageData.maxTags);
-      } else if (hashTagsArray[j].length > maxTagCharAmount) {
+      } else if (hashTagsArray[j].length > tagData.maxTagCharAmount) {
         hashTag.setCustomValidity(errorMessageData.maxTagChar);
       } else {
         hashTag.setCustomValidity('');
       }
     }
   } else {
-    hashTag.setCustomValidity('');
+    clearCustomValidity(hashTag);
   }
 };
 
+submitBtn.addEventListener('click', onSubmitClick);
+
 hashTag.addEventListener('input', function () {
-  checkHashTags(tagData.minTagCharAmount, tagData.maxTagCharAmount, tagData.maxTagAmount, tagData.tagSign, hashTag);
+  clearCustomValidity(hashTag);
 });
 
 hashTag.addEventListener('focus', function () {
