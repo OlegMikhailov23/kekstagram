@@ -30,6 +30,7 @@ var pictureTemplate = document.querySelector('#picture').content.querySelector('
 
 var bigPicture = document.querySelector('.big-picture');
 
+var bigPictureClose = document.querySelector('.big-picture__cancel');
 
 // Функция для создания элемента
 
@@ -114,11 +115,12 @@ var pushInDock = function () {
 
 // Показываем большую картинку
 
-var show = function (element, mainArray) {
+var show = function (element, mainArray, number) {
+  element.querySelector('img').src = mainArray[number].url;
+  element.querySelector('.comments-count').textContent = mainArray[number].comments.length;
+  element.querySelector('.likes-count').textContent = mainArray[number].likes;
   element.classList.remove('hidden');
-  element.querySelector('img').src = mainArray[0].url;
-  element.querySelector('.comments-count').textContent = mainArray[0].comments.length;
-  element.querySelector('.likes-count').textContent = mainArray[0].likes;
+  document.addEventListener('keydown', onBigPictureEscpress);
 };
 
 // Создаем элемент для одной строчки комментария
@@ -137,7 +139,15 @@ var createComments = function (element) {
 
 // Выводим список комментариев в документ, используя массив "comments"
 
+var clearList = function (element) { // Очищаем список комментариев
+  var collection = document.querySelectorAll(element);
+  for (var i = 0; i < collection.length; i++) {
+    collection[i].remove();
+  }
+}
+
 var renderCommentList = function (element) {
+  clearList('.social__comment');
   var commentBlock = document.querySelector('.social__comments');
   for (var i = 0; i < element.comments.length; i++) {
     var commentText = makeElement('p', 'social__text', element.comments[i]);
@@ -153,20 +163,61 @@ var hide = function (block1, block2) {
   document.querySelector(block1).classList.add('visually-hidden');
   document.querySelector(block2).classList.add('visually-hidden');
 };
+var setAttr = function (el, attrName) {
+  var collection = document.querySelectorAll(el);
+  for (var i = 0; i < collection.length; i++) {
+    collection[i].setAttribute(attrName, i);
+  }
+};
+// Собираем массив объектов (generateData):
 
-// Собираем все функции в одну (start) и запускаем ее
+var userPictureData = {
+  userPictureClass: 'picture__img',
+  attrToSet: 'user-picture-id'
+};
 
-var start = function () {
+var generateData = function () {
   getUrlsLikes();
   getPictData(pictStore, pictKeys, pictData, comments, pictUrls);
   pushInDock();
-  // show(bigPicture, pictStore);
-  renderCommentList(pictStore[0]);
   hide('.social__comment-count', '.social__loadmore');
+  setAttr('.' + userPictureData.userPictureClass, userPictureData.attrToSet); // Проставляем у всех элементов с классом picture__img атрибут user-picture-id
 };
-start();
+
+generateData();
 
 // Работа над сценарием
+// Сценарий полноэкранного режима пользовательских фото:
+
+var onUserPictureClick = function (evt) {
+  var target = evt.target;
+  var targetId = target.getAttribute(userPictureData.attrToSet);
+  if (target.className !== userPictureData.userPictureClass) {
+    return;
+  } else {
+    evt.preventDefault();
+    show(bigPicture, pictStore, targetId);
+    renderCommentList(pictStore[targetId]);
+  }
+};
+
+var closeBigPicture = function () {
+  bigPicture.classList.add('hidden');
+  document.removeEventListener('keydown', onBigPictureEscpress);
+};
+
+var onBigPictureEscpress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeBigPicture();
+  }
+};
+
+picturesBlock.addEventListener('click', onUserPictureClick);
+
+bigPictureClose.addEventListener('click', closeBigPicture);
+
+
+// Сценарий формы загрузки:
 
 var uploadForm = document.querySelector('.img-upload__form');
 
@@ -239,13 +290,6 @@ openForm.addEventListener('change', onUploadbtnChange);
 closeUploadForm.addEventListener('click', function () {
   closeForm();
   openForm.value = '';
-});
-
-closeUploadForm.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    closeForm();
-    openForm.value = '';
-  }
 });
 
 // Работа с изображением
@@ -426,10 +470,18 @@ var splitString = function (string) {
 };
 
 var clearCustomValidity = function (el) {
-    el.setCustomValidity('');
+  el.setCustomValidity('');
 };
 
-var onSubmitClick = function () {
+var highLightInvalid = function (el) {
+    if (el.validity.customError) {
+      el.style.borderColor = 'red';
+    } else {
+      el.style.borderColor = 'green';
+    }
+}
+
+var checkHashTags = function () {
   if (hashTag.value !== '') {
     var hashTagValue = hashTag.value.toLowerCase();
     var hashTagsArray = splitString(hashTagValue);
@@ -458,19 +510,17 @@ var onSubmitClick = function () {
         hashTag.setCustomValidity(errorMessageData.maxTags);
       } else if (hashTagsArray[j].length > tagData.maxTagCharAmount) {
         hashTag.setCustomValidity(errorMessageData.maxTagChar);
-      } else {
-        hashTag.setCustomValidity('');
       }
     }
-  } else {
-    clearCustomValidity(hashTag);
+    highLightInvalid(hashTag);
   }
 };
 
-submitBtn.addEventListener('click', onSubmitClick);
+// submitBtn.addEventListener('click', onSubmitClick);
 
 hashTag.addEventListener('input', function () {
   clearCustomValidity(hashTag);
+  checkHashTags();
 });
 
 hashTag.addEventListener('focus', function () {
