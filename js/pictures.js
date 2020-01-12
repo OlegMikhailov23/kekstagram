@@ -32,6 +32,11 @@ var bigPicture = document.querySelector('.big-picture');
 
 var bigPictureClose = document.querySelector('.big-picture__cancel');
 
+var likeRange = {
+  min: 15,
+  max: 1500
+};
+
 // Функция для создания элемента
 
 var makeElement = function (tagName, className, text) {
@@ -68,7 +73,7 @@ var getUrlsLikes = function () {
     // Массив pictUrls перемешиваем
 
     shuffle(pictUrls);
-    var like = getRandomNumber(15, 500);
+    var like = getRandomNumber(likeRange.min, likeRange.max);
     likes.push(like);
   }
 };
@@ -144,7 +149,7 @@ var clearList = function (element) { // Очищаем список коммен
   for (var i = 0; i < collection.length; i++) {
     collection[i].remove();
   }
-}
+};
 
 var renderCommentList = function (element) {
   clearList('.social__comment');
@@ -163,6 +168,7 @@ var hide = function (block1, block2) {
   document.querySelector(block1).classList.add('visually-hidden');
   document.querySelector(block2).classList.add('visually-hidden');
 };
+
 var setAttr = function (el, attrName) {
   var collection = document.querySelectorAll(el);
   for (var i = 0; i < collection.length; i++) {
@@ -240,7 +246,6 @@ var resizeVal = uploadForm.querySelector('.resize__control--value');
 var defaultScale = 100 + '%';
 
 // Перемнные для управления эффектами
-var origEffect = uploadForm.querySelector('#effect-none');
 
 var effectBlock = uploadForm.querySelector('.effects__list');
 
@@ -264,25 +269,25 @@ var onFormEscpress = function (evt) {
 var onUploadbtnChange = function () {
   uploadWorkspace.classList.remove('hidden');
   document.addEventListener('keydown', onFormEscpress);
-  document.addEventListener('keydown', onPreviewPicturePluspress);
-  document.addEventListener('keydown', onPreviewPictureMinuspress);
+  document.addEventListener('keydown', onPreviewPictureScaleBtnpress);
+  document.addEventListener('keydown', onPreviewPictureScaleBtnpress);
 };
 
 var closeForm = function () {
   uploadWorkspace.classList.add('hidden');
   document.removeEventListener('keydown', onFormEscpress);
-  document.removeEventListener('keydown', onPreviewPicturePluspress);
-  document.removeEventListener('keydown', onPreviewPictureMinuspress);
-  keepPreviewToDefault();
+  document.removeEventListener('keydown', onPreviewPictureScaleBtnpress);
+  document.removeEventListener('keydown', onPreviewPictureScaleBtnpress);
+  keepUploadFormToDefault();
 };
 
-var keepPreviewToDefault = function () {
+var keepUploadFormToDefault = function () {
   scalePin.classList.add('hidden');
   previewPicture.style.transform = 'scale(1)';
   previewPicture.classList = 'img-upload__preview';
   previewPicture.removeAttribute('style');
-  resizeVal.value = defaultScale;
-  origEffect.checked = true;
+  hashTag.style.borderColor = 'initial';
+  uploadForm.reset();
 };
 
 openForm.addEventListener('change', onUploadbtnChange);
@@ -317,14 +322,10 @@ var reduceScale = function () {
   changeScale();
 };
 
-var onPreviewPicturePluspress = function (evt) {
+var onPreviewPictureScaleBtnpress = function (evt) {
   if (evt.keyCode === PLUS_KEYCODE) {
     increaseScale();
-  }
-};
-
-var onPreviewPictureMinuspress = function (evt) {
-  if (evt.keyCode === MINUS_KEYCODE) {
+  } else if (evt.keyCode === MINUS_KEYCODE) {
     reduceScale();
   }
 };
@@ -332,7 +333,6 @@ var onPreviewPictureMinuspress = function (evt) {
 resizePlus.addEventListener('click', function () {
   increaseScale();
 });
-
 
 resizeMinus.addEventListener('click', function () {
   reduceScale();
@@ -452,7 +452,7 @@ var errorMessageData = {
   tagBegin: 'Хэштег должен начинаться с ' + tagData.tagSign,
   minTagChar: 'Хэштег должен состоять минимум из ' + tagData.minTagCharAmount + ' символов и не может состоять только из #',
   maxTagChar: 'Один хэштег не может быть больше ' + tagData.maxTagCharAmount + ' символов',
-  tagSpaced: 'Хэштеги должны отделятся между собой пробелами',
+  tagSpaced: 'Хэштеги должны отделяться между собой пробелами',
   tagRepeat: 'Хэштеги не должны повторяться',
   maxTags: 'Укажите не больше ' + tagData.maxTagAmount + ' тегов'
 };
@@ -473,13 +473,13 @@ var clearCustomValidity = function (el) {
   el.setCustomValidity('');
 };
 
-var highLightInvalid = function (el) {
-    if (el.validity.customError) {
-      el.style.borderColor = 'red';
-    } else {
-      el.style.borderColor = 'green';
-    }
-}
+var highLightInvalid = function (el, validColor, invalidColor) {
+  if (el.validity.customError) {
+    el.style.borderColor = invalidColor;
+  } else {
+    el.style.borderColor = validColor;
+  }
+};
 
 var checkHashTags = function () {
   if (hashTag.value !== '') {
@@ -512,8 +512,8 @@ var checkHashTags = function () {
         hashTag.setCustomValidity(errorMessageData.maxTagChar);
       }
     }
-    highLightInvalid(hashTag);
   }
+  highLightInvalid(hashTag, '#66fa5f', '#f74921'); // Подсветим поле, при вводе
 };
 
 // submitBtn.addEventListener('click', onSubmitClick);
