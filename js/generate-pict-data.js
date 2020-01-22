@@ -22,7 +22,7 @@
     max: 500
   };
 
-   var commentRange = {
+  var commentRange = {
     min: 1,
     max: 2
   };
@@ -52,7 +52,7 @@
       var like = window.mathUtils.getRandomNumber(likeRange.min, likeRange.max);
       likes.push(like);
     }
-  }
+  };
 
   // Создаем массив объектов
   var getPictData = function (mainArray, arrKeys, arrData, arrComments, arrUrls) {

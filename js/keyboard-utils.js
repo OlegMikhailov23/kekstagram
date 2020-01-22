@@ -1,6 +1,6 @@
 'use strict';
 
-window.keyboardUtils = (function() {
+window.keyboardUtils = (function () {
 
   var ESC_KEYCODE = 27;
 
@@ -26,7 +26,7 @@ window.keyboardUtils = (function() {
         action();
       }
     },
-    isPlusEvent: function (evt, action) {
+    isMinusEvent: function (evt, action) {
       if (evt.keyCode === MINUS_KEYCODE) {
         action();
       }

@@ -6,10 +6,6 @@
     scalePin: document.querySelector('.img-upload__scale'),
     hashTag: document.querySelector('.text__hashtags'),
     previewPicture: document.querySelector('.img-upload__preview'),
-
-    onPreviewPictureScaleBtnpress: function (evt) {
-      window.keyboardUtils.isPlusEvent(evt, increaseScale());
-      window.keyboardUtils.isMinusEvent(evt, reduceScale());
-    }
-  }
+    resizeVal: document.querySelector('.resize__control--value'),
+  };
 })();
