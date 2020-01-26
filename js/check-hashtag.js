@@ -1,6 +1,11 @@
 'use strict';
 
 (function () {
+
+  var hashTag = window.uploadFormData.hashTag;
+
+  var submitBtn = document.querySelector('#upload-submit');
+
   // Проверка Хэш-тегов и комментария
   var tagData = {
     maxTagAmount: 5,
@@ -17,10 +22,6 @@
     tagRepeat: 'Хэштеги не должны повторяться',
     maxTags: 'Укажите не больше ' + tagData.maxTagAmount + ' тегов'
   };
-
-  var hashTag = window.uploadFormData.hashTag;
-
-  var submitBtn = document.querySelector('#upload-submit');
 
   var splitString = function (string) {
     var space = ' ';
