@@ -2,6 +2,7 @@
 
 (function () {
   window.uploadFormData = {
+    uploadWorkspace: document.querySelector('.img-upload__overlay'),
     uploadForm: document.querySelector('.img-upload__form'),
     scalePin: document.querySelector('.img-upload__scale'),
     scaleHandle: document.querySelector('.scale__pin'),

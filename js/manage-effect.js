@@ -22,10 +22,9 @@
 
   var effectValue = 'none'; // необходима для передачи переменной между функциями
 
-
   var pinPosition = {
-    minPinPosition: 0,
-    maxPinPosition: 450
+    MIN: 0,
+    MAX: 450
   };
 
   var filterMap = {
@@ -78,8 +77,8 @@
   };
 
   var barToDefault = function () {
-    scaleHandle.style.left = pinPosition.maxPinPosition + 'px';
-    scaleLevel.style.width = pinPosition.maxPinPosition + 'px';
+    scaleHandle.style.left = pinPosition.MAX + 'px';
+    scaleLevel.style.width = pinPosition.MAX + 'px';
   };
   // Сбрасываем масштаб картинки, значение текущего свойства css у выбранного эффекта при переключении между фильтрами
   var keepEffectToDefault = function (currentEffectVal) {
@@ -106,18 +105,18 @@
   var offsetPin = function (position) {
     scaleHandle.style.left = position + 'px';
     scaleLevel.style.width = position + 'px';
-    if (position < pinPosition.minPinPosition) {
-      scaleHandle.style.left = 0;
+    if (position < pinPosition.MIN) {
+      scaleHandle.style.left = pinPosition.MIN;
     }
-    if (position > pinPosition.maxPinPosition) {
-      scaleHandle.style.left = pinPosition.maxPinPosition + 'px';
+    if (position > pinPosition.MAX) {
+      scaleHandle.style.left = pinPosition.MAX + 'px';
     }
   };
 
   var changeStyle = function (position) {
     var prefix = filterMap[effectValue].prefix || '';
     var currentFilterStyle = filterMap[effectValue].css;
-    var shiftCssValue = parseFloat((position / pinPosition.maxPinPosition)).toFixed(2);
+    var shiftCssValue = parseFloat((position / pinPosition.MAX)).toFixed(2);
     scaleValue.value = shiftCssValue * scalePinValueDefault;
     var value = getStyleValue(filterMap[effectValue].min, filterMap[effectValue].max, shiftCssValue);
     if (value > filterMap[effectValue].max) {

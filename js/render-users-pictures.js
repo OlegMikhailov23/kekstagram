@@ -5,11 +5,9 @@
 
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture__link');
 
-  var bigPicture = document.querySelector('.big-picture');
+  var URL_LOAD = 'https://js.dump.academy/kekstagram/data';
 
-  var bigPictureClose = document.querySelector('.big-picture__cancel');
-
-  var pictStore = window.generatePictData;
+  // var pictStore = window.generatePictData; // Иссользуется при генерации МОК данных
 
   var renderPicture = function (picture) {
     var pictureElement = pictureTemplate.cloneNode(true);
@@ -19,15 +17,28 @@
     return pictureElement;
   };
 
-  // Отрисовываем DOM элементы на странице
-
-  var pushInDock = function () {
+  var pushInDock = function (userPictures) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < pictStore.length; i++) {
-      fragment.appendChild(renderPicture(pictStore[i]));
+    for (var i = 0; i < userPictures.length; i++) {
+      fragment.appendChild(renderPicture(userPictures[i]));
     }
     picturesBlock.appendChild(fragment);
   };
 
-  pushInDock();
+  var setAttr = function (el, attrName) {
+    var collection = document.querySelectorAll(el);
+    for (var i = 0; i < collection.length; i++) {
+      collection[i].setAttribute(attrName, i);
+    }
+  };
+
+  // Отрисовываем DOM элементы на странице
+
+  var successHandler = function (userPictures) {
+    window.dataUserPictures = userPictures; // Записываем результат запроса на сервер в глобальную переменную
+    pushInDock(userPictures);
+    setAttr('.' + window.userPictureData.userPictureClass, window.userPictureData.attrToSet);
+  };
+
+  window.backend.load(successHandler, window.backend.infoHandler, URL_LOAD);
 })();
