@@ -68,11 +68,10 @@
 
   var sendSuccess = function () {
     closeForm();
-    window.backend.infoHandler('Данные отправлены!', 'green');
   };
 
   uploadForm.addEventListener('submit', function (evt) {
-    window.backend.save(new FormData(uploadForm), sendSuccess, window.backend.infoHandler, URL_SAVE);
+    window.backend.save(new FormData(uploadForm), sendSuccess, window.backend.errorSaveHandler, URL_SAVE);
     evt.preventDefault();
   });
 })();

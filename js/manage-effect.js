@@ -134,32 +134,6 @@
 
   // Перетаскивание пина и изменения глубины фильтра (логика)
   scaleHandle.addEventListener('mousedown', function (evt) {
-    evt.preventDefault();
-
-    var startCoordinate = {
-      x: evt.clientX
-    };
-
-    var onMouseMove = function (moveEvt) {
-      moveEvt.preventDefault();
-      var shift = {
-        x: startCoordinate.x - moveEvt.clientX
-      };
-      startCoordinate = {
-        x: moveEvt.clientX
-      };
-      var position = scaleHandle.offsetLeft - shift.x;
-      offsetPin(position);
-      changeStyle(position);
-    };
-
-    var onScaleMouseup = function () {
-      evt.preventDefault();
-      document.removeEventListener('mouseup', onScaleMouseup);
-      document.removeEventListener('mousemove', onMouseMove);
-    };
-
-    document.addEventListener('mouseup', onScaleMouseup);
-    document.addEventListener('mousemove', onMouseMove);
+    window.dragAndDrop(evt, offsetPin, changeStyle, scaleHandle);
   });
 })();

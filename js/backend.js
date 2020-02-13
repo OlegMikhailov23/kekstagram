@@ -22,18 +22,20 @@
 
   var makeInfoBlock = function (message, color) {
     var node = document.createElement('div');
-    node.style = 'z-index: 100; min-width: 400px; text-align: center; box-shadow: 1px 0 15px 1px #000';
+    node.style = 'z-index: 100; width: 400px; text-align: center; box-shadow: 1px 0 15px 1px #000';
     node.style.position = 'fixed';
     node.style.backgroundColor = color;
     node.style.left = '50%';
     node.style.marginLeft = '-200px';
     node.style.top = '15%';
     node.style.padding = '3%';
-    node.style.fontSize = '30px';
+    node.style.fontSize = '22px';
+    node.style.lineHeight = '24px';
     node.style.borderRadius = '5px';
     node.textContent = message;
     document.body.insertAdjacentElement('afterbegin', node);
   };
+
   window.backend = {
 
     load: function (onLoad, onError, url) {
@@ -50,6 +52,10 @@
 
     infoHandler: function (message, color) {
       makeInfoBlock(message, color);
+    },
+
+    errorSaveHandler: function () {
+      window.pushError(document.querySelector('#picture').content.querySelector('.img-upload__message--error'));
     }
   };
 
