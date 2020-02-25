@@ -215,7 +215,7 @@ main {
 }
 
 .img-filters--inactive {
-  /*opacity: 0;*/
+  opacity: 0;
 }
 
 .img-filters__button {
@@ -238,6 +238,7 @@ main {
 
   background-color: #ffffff;
   border-radius: 2px;
+  transition: 0.3s;
 }
 
 .img-filters__label {
