@@ -12,13 +12,17 @@
 
   var filterDiscussed = document.querySelector('#filter-discussed');
 
+  var picturesBlock = document.querySelector('.pictures');
+
   var userPicturesOrig;
 
   var userPicturesCopy;
 
   var userPictureRandomed;
 
-  // var pictStore = window.generatePictData; // Иссользуется при генерации МОК данных
+  var picturesBlock = document.querySelector('.pictures');
+
+  var dataUserPictures;
 
   var showFilters = function (className) {
     filtersContainer.classList.remove(className);
@@ -32,12 +36,12 @@
   };
 
   var upDatePicturesNew = function (data) {
-    window.dataUserPictures = data;
+    dataUserPictures = data;
     window.pushInDock(data, AMOUNT_OF_NEWPICTURES);
   };
 
   var upDatePicturesPopular = function (data) {
-    window.dataUserPictures = data;
+    dataUserPictures = data;
     window.pushInDock(data, data.length);
   };
 
@@ -51,7 +55,7 @@
         return 0;
       }
     }), data.length);
-    window.dataUserPictures = data;
+    dataUserPictures = data;
   };
 
   var switchHighLight = function (switched) {
@@ -78,13 +82,17 @@
     switchHighLight(filterDiscussed);
   });
 
+  picturesBlock.addEventListener('click', function (evt) {
+    window.onUserPictureClick(evt, dataUserPictures);
+  });
+
   // Отрисовываем DOM элементы на странице
 
   var successHandler = function (userPictures) {
     userPicturesOrig = userPictures;
     userPicturesCopy = userPictures.slice();
     userPictureRandomed = window.mathUtils.shuffleArray(userPictures.slice());
-    window.dataUserPictures = userPictures;
+    dataUserPictures = userPictures;
     window.pushInDock(userPictures, userPictures.length);
     showFilters('img-filters--inactive');
   };

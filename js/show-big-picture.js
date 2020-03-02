@@ -6,8 +6,6 @@
 
   var bigPictureClose = document.querySelector('.big-picture__cancel');
 
-  var picturesBlock = document.querySelector('.pictures');
-
   window.userPictureData = {
     userPictureClass: 'picture__link',
     attrToSet: 'user-picture-id'
@@ -27,10 +25,10 @@
     document.querySelector(block2).classList.add('visually-hidden');
   };
 
-  var show = function (element, mainArray, number) {
-    element.querySelector('img').src = mainArray[number].url;
-    element.querySelector('.comments-count').textContent = mainArray[number].comments.length;
-    element.querySelector('.likes-count').textContent = mainArray[number].likes;
+  var show = function (element, array, number) {
+    element.querySelector('img').src = array[number].url;
+    element.querySelector('.comments-count').textContent = array[number].comments.length;
+    element.querySelector('.likes-count').textContent = array[number].likes;
     element.classList.remove('hidden');
     document.addEventListener('keydown', onBigPictureEscpress);
   };
@@ -69,19 +67,6 @@
     }
   };
 
-  var onUserPictureClick = function (evt, obj) {
-    var target = evt.target.closest('a');
-    if (target === null) {
-      return;
-    } else if (target.hasAttribute(window.userPictureData.attrToSet)) {
-      evt.preventDefault();
-      var targetId = target.getAttribute(window.userPictureData.attrToSet);
-      show(bigPicture, obj, targetId);
-      renderCommentList(obj[targetId]);
-      hide('.social__comment-count', '.social__loadmore');
-    }
-  };
-
   var closeBigPicture = function () {
     bigPicture.classList.add('hidden');
     document.removeEventListener('keydown', onBigPictureEscpress);
@@ -91,9 +76,18 @@
     window.keyboardUtils.isEscEvent(evt, closeBigPicture);
   };
 
-  picturesBlock.addEventListener('click', function (evt) {
-    onUserPictureClick(evt, window.dataUserPictures);
-  });
-
   bigPictureClose.addEventListener('click', closeBigPicture);
+
+  window.onUserPictureClick = function (evt, array) {
+    var target = evt.target.closest('a');
+    if (target === null) {
+      return;
+    } else if (target.hasAttribute(window.userPictureData.attrToSet)) {
+      evt.preventDefault();
+      var targetId = target.getAttribute(window.userPictureData.attrToSet);
+      show(bigPicture, array, targetId);
+      renderCommentList(array[targetId]);
+      hide('.social__comment-count', '.social__loadmore');
+    }
+  };
 })();
