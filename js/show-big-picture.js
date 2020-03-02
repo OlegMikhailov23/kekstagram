@@ -6,11 +6,6 @@
 
   var bigPictureClose = document.querySelector('.big-picture__cancel');
 
-  window.userPictureData = {
-    userPictureClass: 'picture__link',
-    attrToSet: 'user-picture-id'
-  };
-
   var makeElement = function (tagName, className, text) {
     var element = document.createElement(tagName);
     element.classList.add(className);

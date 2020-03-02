@@ -24,6 +24,11 @@
 
   var dataUserPictures;
 
+  window.userPictureData = {
+    userPictureClass: 'picture__link',
+    attrToSet: 'user-picture-id'
+  };
+
   var showFilters = function (className) {
     filtersContainer.classList.remove(className);
   };
