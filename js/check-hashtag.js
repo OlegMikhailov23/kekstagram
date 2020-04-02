@@ -76,8 +76,6 @@
     highLightInvalid(hashTag, '#66fa5f', '#f74921'); // Подсветим поле, при вводе
   };
 
-  // submitBtn.addEventListener('click', onSubmitClick);
-
   hashTag.addEventListener('input', function () {
     clearCustomValidity(hashTag);
     checkHashTags();

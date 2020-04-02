@@ -9,22 +9,22 @@
 
   var likes = [];
 
-  var pictKeys = ['url', 'likes', 'comments', 'description'];
+  var pictKeys = ['url', 'likes', 'comments', 'descriptions'];
 
-  var description = ['Тестим новую камеру', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем', 'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
+  var descriptions = ['Тестим новую камеру', 'Затусили с друзьями на море', 'Как же круто тут кормят', 'Отдыхаем', 'Цените каждое мгновенье. Цените тех, кто рядом с вами и отгоняйте все сомненья. Не обижайте всех словами......', 'Вот это тачка!'];
 
   var comments = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
 
-  var pictData = [pictUrls, likes, comments, description];
+  var pictData = [pictUrls, likes, comments, descriptions];
 
   var likeRange = {
-    min: 15,
-    max: 500
+    MIN: 15,
+    MAX: 500
   };
 
   var commentRange = {
-    min: 1,
-    max: 2
+    MIN: 1,
+    MAX: 2
   };
 
   // shuffle - для перемешивания массива
@@ -49,7 +49,7 @@
 
   var generateLikes = function () {
     for (var i = 1; i <= pictureAmount; i++) {
-      var like = window.mathUtils.getRandomNumber(likeRange.min, likeRange.max);
+      var like = window.mathUtils.getRandomNumber(likeRange.MIN, likeRange.MAX);
       likes.push(like);
     }
   };
@@ -64,7 +64,7 @@
           [Math.floor(Math.random() * arrData[j].length)]
         ];
         if (arrKeys[j] === 'comments') {
-          for (var k = 0; k < window.mathUtils.getRandomNumber(commentRange.min, commentRange.max); k++) {
+          for (var k = 0; k < window.mathUtils.getRandomNumber(commentRange.MIN, commentRange.MAX); k++) {
             someMassive.push(arrComments[Math.floor(Math.random() * arrComments.length)]);
           }
         }
