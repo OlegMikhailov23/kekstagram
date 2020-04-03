@@ -97,6 +97,6 @@
     showFilters('img-filters--inactive');
   };
 
-  var URL_LOAD = 'https://js.dump.academy/kekstagram/data';
+  var URL_LOAD = 'http://dkfolkiy.beget.tech/gram/data.json';
   window.backend.load(successHandler, window.backend.infoHandler, URL_LOAD);
 })();
